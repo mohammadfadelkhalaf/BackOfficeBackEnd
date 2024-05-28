@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+option csharp_namespace = "WebGrpc";
+
+package course;
+
+// The greeting service definition.
+service Courses {
+  // Sends a greeting
+  rpc GetCourses (CourseRequest) returns (CourseReplyList);
+}
+
+// The request message containing the user's name.
+message CourseRequest {
+}
+
+message CourseReplyList {
+  repeated CourseReply courses = 1;
+}
+
+// The response message containing the greetings.
+message CourseReply {
+  int32 id = 1;
+  string title = 2;
+  string imageName = 3;
+  string author = 4;
+}

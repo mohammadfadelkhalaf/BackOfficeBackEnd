@@ -1,0 +1,174 @@
+﻿@model CourseIndexViewModel
+@{
+    ViewData["Title"] = "Courses";
+
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<div class="container">
+    <setion class="container mt-2 mt-sm-3 py-md-3 py-lg-5">
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 gx-3 gx-md-4 mt-n2 mt-sm-0">
+
+            @if (Model.Courses != null)
+            {
+                @foreach (var course in Model.Courses)
+                {
+                    <div class="col pb-1 pb-lg-3 mb-4">
+                        <article class="card h-100 border-0 shadow-sm">
+                            <div class="position-relative">
+                                @if (course.IsBestSeller)
+                                {
+                                    <span class="badge bg-success position-absolute top-0 start-0 zindex-2 mt-3 ms-3">Best Seller</span>
+                                }
+                                <img src="@course.ImageName" class="card-img-custom" alt="Image">
+                            </div>
+                            <div class="card-body pb-3">
+                                <h3 class="h5 mb-2">
+                                    <a href="portfolio-single-course.html">@course.Title</a>
+                                </h3>
+                                <p class="fs-sm mb-2">By @course.Author</p>
+                                <p class="fs-lg fw-semibold text-primary mb-0" class="price @(!string.IsNullOrEmpty(course.DisCountPrice) ? "discount enabled" : "")">$@course.Price</p>
+                                <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#buyModal"
+                                        data-course-id="@course.Id" data-course-title="@course.Title" data-course-price="@course.Price"
+                                        data-course-author="@course.Author"
+                                        data-course-image="@course.ImageName"
+                                        data-batches='@Html.Raw(Json.Serialize(course.Batches))'>
+                                    Buy
+                                </button>
+                            </div>
+                            <div class="card-footer d-flex align-items-center fs-sm text-muted py-4">
+                                <div class="d-flex align-items-center me-4">
+                                    <i class="bx bx-time fs-xl me-1"></i>
+                                    @course.Hours hours
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="bx bx-like fs-xl me-1"></i>
+                                    @course.LikesInProcent% (@course.LikesInNumbers)
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                }
+
+            }
+        </div>
+
+        </section>
+</div>
+
+
+
+<div class="modal fade" id="buyModal" tabindex="-1" aria-labelledby="buyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header modal-head">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <img src="#" alt="Alternate Text" id="modal-image" />
+            <div class="modal-body" style="padding:25px">
+                <form id="buyForm" method="post" action="/Courses/Index">
+                    <input id="courseId" name="courseId" type="hidden" />
+                    <input id="price" name="price" type="hidden" />
+                    <input id="userId" name="userId" type="hidden" />
+                    <div class="d-flex">
+                        <h5 id="courseTitle" style="color:rgb(62, 65, 238)"></h5>
+                    </div>
+                    <p class="fs-sm mb-2" id="author"></p>
+                    <div class="d-flex">
+                        <h6 id="coursePrice" style="color:rgb(62, 65, 238)"></h6>
+                    </div>
+
+                    <div id="batchList">
+                        <h5>Batches:</h5>
+                        @* <select id="batchDropdown" class="form-select" name="batchId">
+                        </select> *@
+                        <select id="batchDropdown" class="form-select" name="batchId">
+                           
+                        </select>
+                        <span id="batchError" class="text-danger" style="display:none;">Please select a batch.</span>
+                    </div>
+                </form>
+
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="submitForm()">Buy</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js" integrity="sha512-sJa5KWq3F99QOeijUOm9O+BgDgVtzrWBBagZtjlW7F3I47NO1OaNJvbut+9KOPmjNr4Wb3blU4vQiQdi+Zk6wg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    var buyModal = document.getElementById('buyModal');
+    buyModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget; // Button that triggered the modal
+        var courseId = button.getAttribute('data-course-id');
+        var courseTitle = button.getAttribute('data-course-title');
+        var coursePrice = button.getAttribute('data-course-price');
+        var courseImage = button.getAttribute('data-course-image');
+        var batches = JSON.parse(button.getAttribute('data-batches'));
+        var author = button.getAttribute('data-course-author');
+
+        var modalTitle = buyModal.querySelector('.modal-title');
+        var modalBodyTitle = buyModal.querySelector('#courseTitle');
+        var modalBodyPrice = buyModal.querySelector('#coursePrice');
+        var batchDropdown = buyModal.querySelector('#batchDropdown');
+        var modalImage = buyModal.querySelector('#modal-image');
+        var authorP = buyModal.querySelector('#author');
+        var courseIdInput = buyModal.querySelector('#courseId');
+        var priceInput = buyModal.querySelector('#price');
+        var userIdInput = buyModal.querySelector('#userId');
+
+        modalBodyTitle.textContent = ' ' + courseTitle;
+        modalBodyPrice.textContent = '$' + coursePrice;
+        modalImage.src = courseImage
+        authorP.textContent = 'By ' + author
+        modalBodyPrice.textContent = '$' + coursePrice;
+        courseIdInput.value = courseId;
+        priceInput.value = coursePrice;
+        userIdInput.value = 'N/A';
+        // Clear existing dropdown options
+        batchDropdown.innerHTML = '<option value="0">Select a batch</option>'; 
+        console.log(batches)
+        function formatDate(dateString) {
+            var options = { year: 'numeric', month: 'long', day: 'numeric' };
+            var date = new Date(dateString);
+            return date.toLocaleDateString(undefined, options);
+        }
+        batches.forEach(function (batch) {
+            var option = document.createElement('option');
+            option.value = batch.id;
+            option.textContent = batch.batchName + ' - ' + formatDate(batch.startDate);
+            batchDropdown.appendChild(option);
+        });
+        
+    });
+    function submitForm() {
+        var batchDropdown = document.getElementById('batchDropdown');
+        var batchError = document.getElementById('batchError');
+        if (batchDropdown.value == "0" || batchDropdown.value == undefined) {
+            batchError.style.display = 'block';
+        } else {
+            batchError.style.display = 'none';
+            document.getElementById('buyForm').submit();
+        }
+    }
+    
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ('@TempData["message"]' == "Already In The Batch") {
+            toastr.error('Already In The Batch');
+        }
+        else if ('@TempData["message"]' == "Successfully Purchase")
+        {
+            toastr.success('Successfully registered');
+        }
+        else { }
+    });
+</script> 
