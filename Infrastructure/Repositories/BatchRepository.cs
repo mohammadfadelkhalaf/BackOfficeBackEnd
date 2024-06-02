@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,6 +23,12 @@ namespace Infrastructure.Repositories
             return Batches.ToList();
         }
 
-
+        public async Task<BatchEntity> GetOneBatchesWithDetails(Expression<Func<BatchEntity, bool>> predict)
+        {
+            var Batches = await _context.Batches.Include(c => c.Course).Include(x => x.UserCourses)
+               .AsNoTracking()
+               .FirstOrDefaultAsync(predict);
+            return Batches;
+        }
     }
 }

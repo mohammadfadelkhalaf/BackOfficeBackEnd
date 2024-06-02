@@ -37,8 +37,8 @@ namespace Infrastructure.Repositories
                 var insertedChat = new ChatEntity
                 {
                     Message = chatting.Message,
-                    CreationTimestamp = chatting.CreationTimestamp,
-                    LastUpdated = chatting.LastUpdated,
+                    CreationTimestamp = DateTime.Now,
+                    LastUpdated = DateTime.Now,
                     FromUserId = chatting.FromUserId,
                     ToUserId = chatting.ToUserId,
                     UserId = chatting.UserId,
@@ -85,7 +85,7 @@ namespace Infrastructure.Repositories
         {
             var chat = await _context.Chats
             .Where(s => s.ToUserId == toUserId && s.FromUserId == fromUserId)
-            .OrderBy(s => s.CreationTimestamp) 
+            .OrderByDescending(s => s.CreationTimestamp)
             .ToListAsync();
 
             var totalChat = await _context.Chats.Where(s => s.ToUserId == toUserId && s.FromUserId == fromUserId).ToListAsync();
@@ -114,28 +114,36 @@ namespace Infrastructure.Repositories
         }
         public async Task<List<ChatPreview>> GetChatPreview(string Id)
         {
-            var chatData = await _context.Chats
-           .Where(chat => chat.ToUserId == Id || chat.FromUserId == Id)
-           .Select(chat => new ChatPreview
-           {
-               ToUserId = chat.ToUserId,
-               FromUserId = chat.FromUserId,
-               LastMessage = chat.Message,
-               CreationTime = chat.CreationTimestamp.ToString("HH:mm:ss"),
-               FriendName = chat.ToUser.UserName,
-               FriendUserId = chat.ToUserId,
-               ureadCount = _context.Chats.Count(c => c.ToUserId == chat.ToUserId && c.Unread),
-               CreateOn = chat.CreationTimestamp
-           })
-           .OrderByDescending(x => x.CreateOn)
-           .ToListAsync();
+            try
+            {
+                var chatData = await _context.Chats
+                   .Where(chat => chat.ToUserId == Id || chat.FromUserId == Id)
+                   .Select(chat => new ChatPreview
+                   {
+                       ToUserId = chat.ToUserId,
+                       FromUserId = chat.FromUserId,
+                       LastMessage = chat.Message,
+                       CreationTime = chat.CreationTimestamp.ToString("HH:mm:ss"),
+                       FriendName = chat.ToUser.Id == Id ? chat.FromUser.UserName : chat.ToUser.UserName,
+                       FriendUserId = chat.ToUser.Id == Id ? chat.FromUser.Id : chat.ToUser.Id,
+                       ureadCount = _context.Chats.Count(c => c.ToUserId == chat.ToUserId && c.Unread),
+                       CreateOn = chat.CreationTimestamp
+                   })
+                   .OrderByDescending(x => x.CreateOn)
+                   .ToListAsync();
 
-            var distinctChatData = chatData
-                .GroupBy(chat => new { chat.ToUserId, chat.FromUserId })
-                .Select(group => group.First())
-                .ToList();
+                var distinctChatData = chatData
+                        .GroupBy(chat => new { chat.ToUserId, chat.FromUserId })
+                        .Select(group => group.First())
+                        .ToList();
 
-            return distinctChatData;
+                return distinctChatData;
+            }
+            catch (Exception ex)
+            {
+                return new List<ChatPreview>();
+            }
+
         }
         public async Task<string> UpdateChattingIsRead(string fromUserId, string toUserId, string userid)
         {

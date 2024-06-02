@@ -16,7 +16,7 @@ namespace WebApi.Hubs
             await SendNotificationToGroupAsync(notification.GroupName, notification.MethodName, notification);
         }
 
-        public async Task CommonNotification(CommonNotificationView notification)
+        public async Task CommonNotification(WebApi.Models.CommonNotificationView notification)
         {
             await SendNotificationToGroupAsync(notification.GroupName, notification.MethodName, notification);
         }

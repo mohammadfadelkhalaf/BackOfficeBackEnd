@@ -1,5 +1,4 @@
 ﻿using Infrastructure.Dtos;
-
 namespace WebApi.Models
 {
     public static class NotificationMapper
@@ -46,7 +45,7 @@ namespace WebApi.Models
             return notification;
         }
 
-        public static CommonNotificationView NotificationObjectViewMapNotification(NotificationObjectView notificationObj, string id, string msg, string MethodName)
+        public static CommonNotificationView NotificationObjectViewMapNotification(WebApi.Dtos.NotificationUserDto notificationObj, string id, string msg, string MethodName)
         {
             CommonNotificationView notification = new CommonNotificationView()
             {
@@ -54,14 +53,7 @@ namespace WebApi.Models
                 MethodName = MethodName,
                 GroupName = notificationObj.NotificationForId,
                 Message = msg,
-                Descriptions = notificationObj.Descriptions,
-
-                NotificationType = notificationObj.NotificationType,
-                NotificationFor = notificationObj.NotificationForId,
-                ContentId = notificationObj.ContentId,
-                RestaurantId = notificationObj.RestaurantId,
-                FromUserId = notificationObj.FromuserId,
-                FromUserName = notificationObj.FromUserName,
+                Descriptions = notificationObj.Details,
                 IsRead = false
             };
 

@@ -27,6 +27,7 @@ namespace WebApi.Models
             };
 
             claims.Add(new Claim("RoleId", user.RolesId.ToString()));
+            claims.Add(new Claim("UserId", user.Id.ToString()));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

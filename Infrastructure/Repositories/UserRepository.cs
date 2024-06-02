@@ -47,7 +47,20 @@ namespace Infrastructure.Repositories
                 return null;
             }
         }
+        public async Task<List<UserEntity>> GetAllUserAsync(Expression<Func<UserEntity, bool>> predict)
+        {
+            try
+            {
+                var result = await _context.Set<UserEntity>().Include(a => a.Address).Include(x => x.Roles).Where(predict).ToListAsync();
 
-       
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
     }
 }

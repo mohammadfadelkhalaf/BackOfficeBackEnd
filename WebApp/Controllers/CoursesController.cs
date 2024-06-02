@@ -32,7 +32,7 @@ namespace WebApp.Controllers
         public async Task<IActionResult> Details(int id)
         {
             using var http = new HttpClient();
-            var response = await http.GetAsync($"https://localhost:7098/api/Courses?id={id}");
+            var response = await http.GetAsync($"https://coursesmanagementsapi.azurewebsites.net/api/Courses?id={id}");
             var json = await response.Content.ReadAsStringAsync();
             var data = JsonConvert.DeserializeObject<IEnumerable<CourseEntity>>(json);
 
@@ -50,7 +50,7 @@ namespace WebApp.Controllers
                 using var http = new HttpClient();
                 var json = JsonConvert.SerializeObject(model);
                 using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await http.PostAsync($"https://localhost:7098/api/Courses", content);
+                var response = await http.PostAsync($"https://coursesmanagementsapi.azurewebsites.net/api/Courses", content);
                 if (response.IsSuccessStatusCode)
                 {
                     return RedirectToAction("Index", "Courses");
@@ -73,15 +73,19 @@ namespace WebApp.Controllers
                     return View(courses);
                 }
 
-                //using var http = new HttpClient();
-                //var json = JsonConvert.SerializeObject(model);
-                //using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                //var response = await http.PostAsync($"http://localhost:5233/api/Orders/BuyCourse", content);
-                //if (response.IsSuccessStatusCode)
-                //{
-                //    TempData["message"] = "Successfully Purchase";
-                //    return RedirectToAction("Index", "Courses");
-                //}
+                using var http = new HttpClient();
+                var json = JsonConvert.SerializeObject(model);
+                using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await http.PostAsync($"https://coursesmanagementsapi.azurewebsites.net/api/Orders/BuyCourse", content);
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["message"] = "Successfully Purchase";
+                    return View(courses);
+                }
+                else
+                {
+                    TempData["message"] = "Purchase failed. Please try again.";
+                }
             }
             
             return View(courses);
@@ -91,7 +95,7 @@ namespace WebApp.Controllers
         {
             var viewmodel = new CourseIndexViewModel();
             using var http = new HttpClient();
-            var response = await http.GetAsync("https://localhost:7098/api/Courses");
+            var response = await http.GetAsync("https://coursesmanagementsapi.azurewebsites.net/api/Courses");
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
@@ -100,7 +104,7 @@ namespace WebApp.Controllers
                 {
                     foreach (var item in data)
                     {
-                        item.ImageName = "https://localhost:7098/Resources/images/" + item.ImageName;
+                        item.ImageName = "https://coursesmanagementsapi.azurewebsites.net/Resources/images/" + item.ImageName;
                     }
                     viewmodel.Courses = data;
                 }
@@ -113,7 +117,7 @@ namespace WebApp.Controllers
         {
             var viewmodel = new CourseIndexViewModel();
             using var http = new HttpClient();
-            var response = await http.GetAsync("https://localhost:7098/api/UserCourses/GetCourseDetailsByUserIdAndBatchId/userId/" + userId+"/batchId/"+ batchId);
+            var response = await http.GetAsync("https://coursesmanagementsapi.azurewebsites.net/api/UserCourses/GetCourseDetailsByUserIdAndBatchId/userId/" + userId+"/batchId/"+ batchId);
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
@@ -143,7 +147,7 @@ namespace WebApp.Controllers
         //        using var http = new HttpClient();
         //        var json = JsonConvert.SerializeObject(entity);
         //        using var content=new StringContent(json,Encoding.UTF8,"pplication/json");
-        //        var response = await http.PostAsync($"http://localhost:5233/api/Subscribers?email={entity.Email}",content);
+        //        var response = await http.PostAsync($"https://coursesmanagementsapi.azurewebsites.net/api/Subscribers?email={entity.Email}",content);
         //        if (response.IsSuccessStatusCode)
         //        {
         //            ViewData["Subscribed"] = true;

@@ -1,9 +1,9 @@
 ﻿@model CourseIndexViewModel
 @{
     ViewData["Title"] = "Courses";
+    var message = TempData["message"] as string;
 
 }
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <div class="container">
@@ -66,7 +66,7 @@
             <div class="modal-header modal-head">
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <img src="#" alt="Alternate Text" id="modal-image" />
+            <img src="#" alt="Alternate Text" id="modal-image" style="max-height:25rem !important; object-fit:cover"/>
             <div class="modal-body" style="padding:25px">
                 <form id="buyForm" method="post" action="/Courses/Index">
                     <input id="courseId" name="courseId" type="hidden" />
@@ -100,12 +100,18 @@
         </div>
     </div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js" integrity="sha512-sJa5KWq3F99QOeijUOm9O+BgDgVtzrWBBagZtjlW7F3I47NO1OaNJvbut+9KOPmjNr4Wb3blU4vQiQdi+Zk6wg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- Include Toastr CSS and JS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 <script>
     var buyModal = document.getElementById('buyModal');
     buyModal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget; // Button that triggered the modal
+        var batchError = document.getElementById('batchError');
+        batchError.style.display = 'none';
+
         var courseId = button.getAttribute('data-course-id');
         var courseTitle = button.getAttribute('data-course-title');
         var coursePrice = button.getAttribute('data-course-price');
@@ -162,13 +168,16 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+
         if ('@TempData["message"]' == "Already In The Batch") {
             toastr.error('Already In The Batch');
         }
-        else if ('@TempData["message"]' == "Successfully Purchase")
-        {
+        else if ('@TempData["message"]' == "Successfully Purchase") {
             toastr.success('Successfully registered');
         }
-        else { }
+        else if ('@TempData["message"]' == "Purchase failed.Please try again.") {
+            toastr.error('Purchase failed.Please try again.');
+        }
     });
+
 </script> 

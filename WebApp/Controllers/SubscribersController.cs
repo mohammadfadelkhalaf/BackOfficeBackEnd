@@ -22,7 +22,7 @@ namespace WebApp.Controllers
             {
                 using var http = new HttpClient();
               
-                var url = $"http://localhost:5233/api/Subscribers?email={viewmodel.Email}";
+                var url = $"https://coursesmanagementsapi.azurewebsites.net/api/Subscribers?email={viewmodel.Email}";
                 var request = new HttpRequestMessage(HttpMethod.Post,url);
                 var response = await http.SendAsync(request);
                 if (response.IsSuccessStatusCode)
@@ -41,8 +41,8 @@ namespace WebApp.Controllers
                 using var http = new HttpClient();
                 var json = JsonConvert.SerializeObject(entity);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await http.PostAsync("http://localhost:5233/api/Subscribers", content);
-                //var response = await http.PostAsync($"http://localhost:5233/api/Subscribers?email={entity.Email}", content);
+                var response = await http.PostAsync("https://coursesmanagementsapi.azurewebsites.net/api/Subscribers", content);
+                //var response = await http.PostAsync($"https://coursesmanagementsapi.azurewebsites.net/api/Subscribers?email={entity.Email}", content);
                 if (response.IsSuccessStatusCode)
                 {
                     //  ViewData["Subscribed"] = true;
@@ -72,14 +72,14 @@ namespace WebApp.Controllers
             using var http = new HttpClient();
             //var json = JsonConvert.SerializeObject(entity);
             //var content = new StringContent(json, Encoding.UTF8, "application/json");
-            //var response = await http.DeleteAsync("http://localhost:5233/api/Subscribers",entity.Email);
+            //var response = await http.DeleteAsync("https://coursesmanagementsapi.azurewebsites.net/api/Subscribers",entity.Email);
 
 
 
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Delete,
-                RequestUri = new Uri("http://localhost:5233/api/Subscribers"),
+                RequestUri = new Uri("https://coursesmanagementsapi.azurewebsites.net/api/Subscribers"),
                 Content = new StringContent(JsonConvert.SerializeObject(entity), Encoding.UTF8, "application/json")
             };
             var response = await http.SendAsync(request);
@@ -110,7 +110,7 @@ namespace WebApp.Controllers
         //        using var http = new HttpClient();
         //        var json = JsonConvert.SerializeObject(entity);
         //        using var content = new StringContent(json, Encoding.UTF8, "pplication/json");
-        //        var response = await http.PostAsync($"http://localhost:5233/api/Subscribers?email={entity.Email}", content);
+        //        var response = await http.PostAsync($"https://coursesmanagementsapi.azurewebsites.net/api/Subscribers?email={entity.Email}", content);
         //        if (response.IsSuccessStatusCode)
         //        {
         //            ViewData["Subscribed"] = true;

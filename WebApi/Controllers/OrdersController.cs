@@ -3,6 +3,7 @@ using Infrastructure.Entites;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Dtos;
+using WebApi.Hubs;
 using WebApi.Models;
 
 namespace WebApi.Controllers
@@ -14,12 +15,21 @@ namespace WebApi.Controllers
         private readonly DataContext _context;
         private readonly OrdersRepository _ordersRepository;
         private readonly UserCoursesRepository _userCoursesRepository;
+        private readonly IToastNotificationRepository _toastNotificationRepository;
+        private readonly UserRepository _userRepository;
+        private readonly BatchRepository _batchRepository;
 
-        public OrdersController(DataContext context, OrdersRepository ordersRepository,UserCoursesRepository userCoursesRepository)
+        public OrdersController(DataContext context, OrdersRepository ordersRepository,
+            UserCoursesRepository userCoursesRepository,
+            IToastNotificationRepository toastNotificationRepository,
+            UserRepository userRepository, BatchRepository batchRepository)
         {
             _context = context;
             _ordersRepository = ordersRepository;
             _userCoursesRepository = userCoursesRepository;
+            _toastNotificationRepository = toastNotificationRepository;
+            _userRepository = userRepository;
+            _batchRepository = batchRepository;
         }
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -63,7 +73,7 @@ namespace WebApi.Controllers
         {
             var orderentity = new OrderEntity
             {
-                Id=id,
+                Id = id,
                 UserId = entity.UserId,
                 BatchId = entity.CourseBatchId,
                 PaidAmount = entity.PaidAmount,
@@ -133,6 +143,19 @@ namespace WebApi.Controllers
                     CreationDate = DateTime.Now,
                     ModificationDate = DateTime.Now
                 });
+                var adminUsers = await _userRepository.GetAllUserAsync(x => x.RolesId == 1 || x.RolesId == 2);
+                var joinedUserDetails = await _userRepository.GetOneUserAsync(x => x.Id == entity.userId);
+                var batchDetails = await _batchRepository.GetOneBatchesWithDetails(x => x.Id == entity.batchId);
+                foreach (var user in adminUsers)
+                {
+                    NotificationUserDto mapperdata = new NotificationUserDto();
+                    mapperdata.Details = joinedUserDetails.UserName + " joined Batch Name: " + batchDetails.BatchName + ", Course name: " + batchDetails.Course.Title;
+                    mapperdata.Id = entity.userId;
+                    mapperdata.NotificationForId = user.Id;
+                    await _toastNotificationRepository.CommonNotification(NotificationMapper.NotificationObjectViewMapNotification(mapperdata, mapperdata.Id, mapperdata.Details, "GetNotification"));
+
+                }
+
                 return Created("", orderentity);
             }
             return BadRequest();

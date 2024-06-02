@@ -1,4 +1,4 @@
-@WebApi_HostAddress = http://localhost:5233
+@WebApi_HostAddress = https://coursesmanagementsapi.azurewebsites.net
 
 GET {{WebApi_HostAddress}}/weatherforecast/
 Accept: application/json

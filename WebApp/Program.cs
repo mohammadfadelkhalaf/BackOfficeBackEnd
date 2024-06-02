@@ -2,6 +2,7 @@ using Infrastructure.Context;
 using Infrastructure.Entites;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,7 +49,8 @@ builder.Services.AddScoped<UserService>();
 
 builder.Services.AddScoped<AddressService>();
 builder.Services.AddScoped<EmailServices>();
-
+builder.Services.AddSession();
+builder.Services.AddSingleton<ITempDataProvider, CookieTempDataProvider>(); 
 
 var app = builder.Build();
 //var Scopped = app.Services.CreateScope();
@@ -71,6 +73,7 @@ app.UseRouting();
 app.UseAuthentication();
 
 app.UseAuthorization();
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
